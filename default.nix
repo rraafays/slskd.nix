@@ -7,15 +7,15 @@
 
 let
   user = config.common.username;
-  cfg = config.services.slskdStack;
+  cfg = config.services.slskdClient;
 in
 {
-  options.services.slskdStack = {
-    enable = lib.mkEnableOption "Soulseek (slskd) and Transmission download stack";
+  options.services.slskdClient = {
+    enable = lib.mkEnableOption "slskd (Soulseek music sharing)";
     downloadPath = lib.mkOption {
       type = lib.types.str;
       default = "/away/main/Downloads";
-      description = "Shared download directory for slskd and Transmission.";
+      description = "Download directory for slskd.";
     };
     environmentFile = lib.mkOption {
       type = lib.types.str;
@@ -25,7 +25,7 @@ in
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Open slskd firewall ports (5030/tcp and udp).";
+      description = "Open Soulseek firewall ports (5030/tcp and udp).";
     };
   };
 
@@ -37,21 +37,9 @@ in
     };
 
     users.users.slskd.extraGroups = [ "downloads" ];
-    users.users.transmission.extraGroups = [ "downloads" ];
 
     networking.firewall.allowedTCPPorts = lib.mkAfter [ 5030 ];
     networking.firewall.allowedUDPPorts = lib.mkAfter [ 5030 ];
-
-    services.transmission = {
-      enable = true;
-      openRPCPort = true;
-      openFirewall = true;
-      settings = {
-        rpc-bind-address = "0.0.0.0";
-        rpc-whitelist = "*";
-        download-dir = cfg.downloadPath;
-      };
-    };
 
     services.slskd = {
       enable = true;
@@ -67,7 +55,6 @@ in
       "d ${cfg.downloadPath} 2775 ${user} downloads -"
     ];
 
-    systemd.services.transmission.serviceConfig.UMask = lib.mkForce "0002";
     systemd.services.slskd.serviceConfig.UMask = lib.mkForce "0002";
   };
 }
