@@ -25,6 +25,7 @@ in
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = true;
+      description = "Open slskd firewall ports (5030/tcp and udp).";
     };
   };
 
