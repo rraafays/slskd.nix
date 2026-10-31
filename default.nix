@@ -11,7 +11,11 @@ let
 in
 {
   options.services.slskdClient = {
-    enable = lib.mkEnableOption "slskd (Soulseek music sharing)";
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "slskd (Soulseek) stack.";
+    };
     downloadPath = lib.mkOption {
       type = lib.types.str;
       default = "/away/main/Downloads";
