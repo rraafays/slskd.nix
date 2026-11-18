@@ -59,6 +59,9 @@ in
       "d ${cfg.downloadPath} 2775 ${user} downloads -"
     ];
 
-    systemd.services.slskd.serviceConfig.UMask = lib.mkForce "0002";
+    systemd.services.slskd.serviceConfig = {
+      UMask = lib.mkForce "0002";
+      PrivateUsers = lib.mkForce false;
+    };
   };
 }
