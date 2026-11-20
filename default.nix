@@ -29,7 +29,7 @@ in
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Open Soulseek firewall ports (5030/tcp and udp).";
+      description = "Open Soulseek listen port (50300/tcp; UDP via module).";
     };
   };
 
@@ -43,14 +43,20 @@ in
     users.users.slskd.extraGroups = [ "downloads" ];
 
     networking.firewall.allowedTCPPorts = lib.mkAfter [ 5030 ];
-    networking.firewall.allowedUDPPorts = lib.mkAfter [ 5030 ];
+    networking.firewall.allowedUDPPorts =
+      lib.mkAfter (lib.optional cfg.openFirewall 50300);
 
     services.slskd = {
       enable = true;
       openFirewall = cfg.openFirewall;
       environmentFile = cfg.environmentFile;
       settings = {
-        web.authentication.disabled = true;
+        web = {
+          authentication = {
+            disabled = true;
+          };
+          port = 5030;
+        };
         directories.downloads = cfg.downloadPath;
       };
     };
@@ -61,7 +67,13 @@ in
 
     systemd.services.slskd.serviceConfig = {
       UMask = lib.mkForce "0002";
+      Environment = lib.mkAfter [ "HOME=/var/lib/slskd" ];
       PrivateUsers = lib.mkForce false;
+      PrivateTmp = lib.mkForce false;
+      PrivateDevices = lib.mkForce false;
+      PrivateMounts = lib.mkForce false;
+      RemoveIPC = lib.mkForce false;
+      RestrictNamespaces = lib.mkForce false;
     };
   };
 }
